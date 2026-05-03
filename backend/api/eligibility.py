@@ -1,41 +1,36 @@
 """
 api/eligibility.py — POST /api/eligibility/check
 
-Eligibility logic is computed here (server-side, deterministic).
-Gemini is only used to write the human-readable explanation text.
-This avoids the broken pattern of asking AI to reason about opaque tokens.
+Eligibility logic is computed deterministically (no AI needed).
+Responses use pre-written templates for consistency and cost savings.
 """
 
+import json
+from pathlib import Path
 from typing import Literal
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Security
 from pydantic import BaseModel, Field
-from core.security import tokenizer
-from services.ai import call_ai, parse_json
+from ..core.auth import verify_api_key
 
 router = APIRouter(prefix="/api/eligibility", tags=["Eligibility"])
 
-# Gemini only writes the explanation — eligibility logic is already computed.
-SYSTEM_PROMPT = """
-You are a friendly voter education assistant for India, helping first-time voters.
-You will receive a structured eligibility determination that has already been computed.
-Your job is ONLY to write clear, encouraging, plain-English explanations — not to re-evaluate eligibility.
+# Load templates at startup
+_templates = {}
 
-Rules:
-- Write at Class 8 reading level. Short sentences. No legal jargon.
-- Never invent dates or deadlines. Say "check nvsp.in for current deadlines."
-- Be encouraging. A "not eligible" result should still feel supportive, not discouraging.
-- Output ONLY valid JSON. No markdown, no preamble, no code fences.
+def _load_templates():
+    """Load eligibility templates from static JSON file."""
+    global _templates
+    try:
+        data_file = Path(__file__).resolve().parent.parent / "data" / "eligibility_templates.json"
+        with open(data_file, "r") as f:
+            raw = json.load(f)
+            _templates = raw.get("templates", {})
+    except Exception as e:
+        raise RuntimeError(f"Failed to load eligibility templates: {str(e)}")
 
-Output schema:
-{
-  "eligible": boolean,
-  "summary": "one clear sentence — what the result means for this person",
-  "form_needed": "Form 6" | "None" | null,
-  "documents_needed": ["string — plain description, not legalese"],
-  "next_steps": ["string — concrete action the person can take right now"],
-  "caveat": "one sentence ending with: verify at nvsp.in or call 1950"
-}
-"""
+
+# Initialize on module load
+_load_templates()
 
 
 class EligibilityInput(BaseModel):
@@ -56,10 +51,15 @@ class EligibilityResult(BaseModel):
 
 
 @router.post("/check", response_model=EligibilityResult)
-async def check_eligibility(data: EligibilityInput):
+async def check_eligibility(
+    data: EligibilityInput,
+    api_key: str = Security(verify_api_key)
+):
+    """
+    Check voter eligibility based on deterministic rules.
+    Returns pre-written helpful guidance tailored to why they may be ineligible.
+    """
     # ── Step 1: Compute eligibility with deterministic logic ──────────────
-    # Never ask AI to evaluate booleans — it can't see the actual values
-    # behind tokens. We compute the verdict ourselves.
     age_ok       = data.age >= 18
     citizen_ok   = data.isCitizen
     residence_ok = data.residenceDuration == "6months+"
@@ -68,40 +68,33 @@ async def check_eligibility(data: EligibilityInput):
     # Determine what form is needed (only if eligible and no voter ID yet)
     form_needed = "Form 6" if (is_eligible and not data.hasVoterId) else None
 
-    # ── Step 2: Build a clear, factual brief for the AI ───────────────────
-    # Only the state is tokenized (it's the only non-logical value AI uses for context)
-    tokenized_state = tokenizer.tokenize("STATE", data.state)
+    # ── Step 2: Select appropriate template ──────────────────────────────
+    template_key = None
+    
+    if is_eligible:
+        template_key = "eligible_no_voter_id" if not data.hasVoterId else "eligible"
+    elif not age_ok:
+        template_key = "ineligible_age"
+    elif not citizen_ok:
+        template_key = "ineligible_citizenship"
+    elif not residence_ok:
+        template_key = "ineligible_residence"
+    else:
+        # Fallback (should not reach here)
+        template_key = "ineligible_residence"
+    
+    # ── Step 3: Load template and return ────────────────────────────────
+    if template_key not in _templates:
+        raise HTTPException(status_code=500, detail="Template not found")
+    
+    template = _templates[template_key]
+    
+    return EligibilityResult(
+        eligible=is_eligible,
+        summary=template.get("summary", ""),
+        form_needed=template.get("form_needed") if is_eligible else None,
+        documents_needed=template.get("documents_needed", []),
+        next_steps=template.get("next_steps", []),
+        caveat=template.get("caveat", "")
+    )
 
-    reasons_not_eligible = []
-    if not age_ok:
-        reasons_not_eligible.append(f"age is {data.age} (must be 18 or above)")
-    if not citizen_ok:
-        reasons_not_eligible.append("not an Indian citizen")
-    if not residence_ok:
-        label = {"<1month": "less than 1 month", "1-6months": "1–6 months"}.get(data.residenceDuration, data.residenceDuration)
-        reasons_not_eligible.append(f"has only lived at current address for {label} (needs 6+ months)")
-
-    user_msg = f"""
-Eligibility determination (already computed — do NOT change the 'eligible' field):
-- eligible: {str(is_eligible).lower()}
-- age_meets_requirement: {str(age_ok).lower()}
-- is_indian_citizen: {str(citizen_ok).lower()}
-- residence_meets_requirement: {str(residence_ok).lower()}
-- has_voter_id: {str(data.hasVoterId).lower()}
-- state (tokenized for privacy): {tokenized_state}
-- form_needed: {"Form 6" if form_needed else "none"}
-- ineligibility_reasons: {reasons_not_eligible if reasons_not_eligible else "none — user is fully eligible"}
-
-Generate the JSON explanation. The 'eligible' field in your output MUST match: {str(is_eligible).lower()}
-"""
-
-    try:
-        raw = await call_ai(SYSTEM_PROMPT, user_msg)
-        result_dict = parse_json(raw)
-        # Enforce our own eligibility verdict — never trust AI to override it
-        result_dict["eligible"] = is_eligible
-        if form_needed:
-            result_dict["form_needed"] = form_needed
-        return EligibilityResult(**result_dict)
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"AI service error: {str(e)}")

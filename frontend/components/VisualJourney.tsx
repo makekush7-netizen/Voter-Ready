@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ExternalLink, CheckCircle2 } from "lucide-react";
+import { ExternalLink, CheckCircle2, Loader2 } from "lucide-react";
 import { getJourneyStep, type JourneyStep } from "@/lib/api";
 
 const STATES = [

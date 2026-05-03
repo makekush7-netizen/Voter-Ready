@@ -1,0 +1,99 @@
+{
+  "journey_steps": {
+    "1": {
+      "title": "Check your name on the Electoral Roll",
+      "plain_english": "Before you can vote, your name has to be on your state's electoral roll. This is the official list of all eligible voters in your area. You can check online or visit your local election office.",
+      "how_to": [
+        "Visit nvsp.in (National Voter Service Portal)",
+        "Click 'Search in Electoral Roll'",
+        "Enter your state and district",
+        "Search by name or Voter ID number",
+        "You'll see your entry if registered"
+      ],
+      "common_mistakes": [
+        "Spelling your name wrong (try alternate spellings)",
+        "Not including your middle name or initials",
+        "Searching wrong state or district",
+        "Expecting instant results (may take 24-48 hours after registration)"
+      ],
+      "official_link": "https://www.nvsp.in/"
+    },
+    "2": {
+      "title": "Register / Update your details",
+      "plain_english": "If your name isn't on the electoral roll yet, you need to register. You can do this online or by filing Form 6 at your local election office. If your details have changed, file Form 8 to update them.",
+      "how_to": [
+        "Visit nvsp.in and click 'Register as a Voter'",
+        "Choose 'New Voter Registration'",
+        "Fill in your details: name, DOB, address, state",
+        "Upload proof of address (utility bill, rental agreement, etc.)",
+        "Upload proof of identity (Aadhaar, PAN, passport, etc.)",
+        "Submit and note your reference number",
+        "Your application will be reviewed in 7-10 days"
+      ],
+      "common_mistakes": [
+        "Uploading blurry or incomplete documents",
+        "Providing wrong state or constituency",
+        "Using a residential address that doesn't match your documents",
+        "Not keeping reference number safe"
+      ],
+      "official_link": "https://www.nvsp.in/"
+    },
+    "3": {
+      "title": "Track your application status",
+      "plain_english": "After you register, you can track whether your application has been approved. Use the reference number you got when you applied.",
+      "how_to": [
+        "Visit nvsp.in",
+        "Click 'Track Application Status'",
+        "Enter your reference number",
+        "Check the status: Pending, Approved, or Rejected",
+        "If rejected, it will show the reason"
+      ],
+      "common_mistakes": [
+        "Losing your reference number",
+        "Checking before 7-10 days (takes time to review)",
+        "Not checking the email or SMS updates from election office"
+      ],
+      "official_link": "https://www.nvsp.in/"
+    },
+    "4": {
+      "title": "Find your polling booth",
+      "plain_english": "On election day, you'll vote at a specific polling booth (voting center) near your address. You can find which booth is yours by your voter ID or name.",
+      "how_to": [
+        "Visit your state's election commission website",
+        "Search 'Polling Booth Locator' + your state",
+        "Enter your voter ID number or name",
+        "View your booth location, address, and timing",
+        "Note the booth name and timing (usually 7 AM to 6 PM)",
+        "Plan to arrive early to avoid lines"
+      ],
+      "common_mistakes": [
+        "Going to the wrong polling booth",
+        "Going outside the voting hours",
+        "Not bringing required ID on election day",
+        "Assuming you already know where your booth is"
+      ],
+      "official_link": "https://www.eci.gov.in/"
+    },
+    "5": {
+      "title": "Vote on election day",
+      "plain_english": "On election day, go to your polling booth with valid ID, press the button next to your choice, and get your VVPAT confirmation. Your vote is secret and your choice is protected by law.",
+      "how_to": [
+        "Bring a valid ID (Voter ID, Aadhaar, PAN, driving license, passport)",
+        "Go to your polling booth at the assigned time",
+        "Tell the officer your name and they'll verify your details",
+        "You'll be given a ballot paper or finger-marked",
+        "Go inside the voting booth (it's private and secret)",
+        "Press the button next to your choice",
+        "Verify your choice on the VVPAT slip",
+        "Your vote is now recorded"
+      ],
+      "common_mistakes": [
+        "Forgetting to bring ID",
+        "Trying to vote at the wrong booth",
+        "Telling others who you voted for (vote is secret)",
+        "Leaving after pressing button without verifying VVPAT"
+      ],
+      "official_link": "https://www.eci.gov.in/"
+    }
+  }
+}

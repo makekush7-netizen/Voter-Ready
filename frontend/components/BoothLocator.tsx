@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Script from "next/script";
 
 // Developer: add your Google Maps API key to .env.local as NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
@@ -26,6 +26,8 @@ declare global {
 export default function BoothLocator() {
   const mapRef   = useRef<HTMLDivElement>(null);
   const mapObj   = useRef<google.maps.Map | null>(null);
+  const [mapError, setMapError] = useState<string | null>(null);
+  const [mapsLoading, setMapsLoading] = useState<boolean>(true);
 
   const buildMap = () => {
     if (!mapRef.current || !window.google) return;
@@ -148,21 +150,23 @@ export default function BoothLocator() {
       </div>
 
       {/* Map container */}
-      <div className="card overflow-hidden relative" style={{ height:420 }}>
-        {!MAPS_KEY && (
-          <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 p-6 text-center" 
-            style={{ background:"var(--surface-2)", opacity: 0.95 }}>
-            <span className="text-4xl">🗺️</span>
-            <p className="text-sm leading-relaxed" style={{ color:"var(--text-1)" }}>
-              Add <code style={{ color:"var(--saffron)", fontWeight:"bold" }}>NEXT_PUBLIC_GOOGLE_MAPS_API_KEY</code> to <code style={{ color:"var(--saffron)", fontWeight:"bold" }}>.env.local</code> to enable the interactive map.
-            </p>
-            <p className="text-xs" style={{ color:"var(--text-2)" }}>
-              The 8 sample Indore booths will appear as markers.
-            </p>
-          </div>
-        )}
-        <div ref={mapRef} style={{ width:"100%", height:"100%", background:"var(--surface-2)" }} />
-      </div>
+      {!MAPS_KEY ? (
+        <div className="card p-8 text-center space-y-3">
+          <p style={{ color:"var(--text-1)" }} className="font-semibold">📍 Maps Not Configured</p>
+          <p style={{ color:"var(--text-2)" }} className="text-sm">
+            To use the interactive booth locator, add a Google Maps API key to <code className="bg-slate-100 px-2 py-1 rounded text-xs">NEXT_PUBLIC_GOOGLE_MAPS_API_KEY</code> in <code className="bg-slate-100 px-2 py-1 rounded text-xs">.env.local</code>
+          </p>
+          <p style={{ color:"var(--text-2)" }} className="text-sm">Get one free at <a href="https://console.cloud.google.com/apis/library/maps-backend.googleapis.com" target="_blank" rel="noreferrer" className="underline">Google Cloud Console</a></p>
+        </div>
+      ) : mapError ? (
+        <div className="card p-8 text-center space-y-3">
+          <p style={{ color:"var(--text-1)" }} className="font-semibold">❌ Maps Failed to Load</p>
+          <p style={{ color:"var(--text-2)" }} className="text-sm">{mapError}</p>
+          <p style={{ color:"var(--text-2)" }} className="text-sm text-xs">Check browser console for details. Your API key may be invalid or rate-limited.</p>
+        </div>
+      ) : (
+        <div ref={mapRef} style={{ width:"100%", height:"400px", borderRadius:"var(--radius)", border:"1px solid var(--border)" }} />
+      )}
 
       {/* Booth list (always visible) */}
       <div className="card p-5 space-y-2">

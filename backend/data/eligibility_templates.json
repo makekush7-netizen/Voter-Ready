@@ -1,0 +1,69 @@
+{
+  "templates": {
+    "eligible": {
+      "summary": "Great news! You meet all the requirements to vote in this election.",
+      "documents_needed": [
+        "Aadhaar Card",
+        "PAN Card",
+        "Passport",
+        "Driving License",
+        "or any government-issued ID"
+      ],
+      "next_steps": [
+        "Check your name on the electoral roll at nvsp.in",
+        "If not registered, file Form 6 online",
+        "Find your polling booth 1 week before election day",
+        "Bring your ID on election day and vote!"
+      ],
+      "caveat": "If your name is not on the roll, you may not be able to vote in this election. Check immediately at nvsp.in or call 1950."
+    },
+    "eligible_no_voter_id": {
+      "summary": "You're eligible to vote! But you need to complete your registration first.",
+      "form_needed": "Form 6",
+      "documents_needed": [
+        "Proof of address (utility bill, rental agreement, passport, Aadhaar)",
+        "Proof of identity (PAN, Aadhaar, Passport, Driving License)"
+      ],
+      "next_steps": [
+        "Go to nvsp.in and click 'Register as a Voter'",
+        "Choose 'New Voter Registration' and fill your details",
+        "Upload proof of address and identity",
+        "Wait 7-10 days for approval",
+        "Check your status using your reference number"
+      ],
+      "caveat": "Register as soon as possible. Check nvsp.in for current registration deadlines or call 1950."
+    },
+    "ineligible_age": {
+      "summary": "You're not quite eligible yet, but you will be soon! Keep an eye on when you turn 18.",
+      "documents_needed": [],
+      "next_steps": [
+        "You'll be eligible to vote when you turn 18",
+        "Mark the date in your calendar",
+        "Visit nvsp.in after you turn 18 to register",
+        "In the meantime, learn about candidates, issues, and the voting process on this app"
+      ],
+      "caveat": "You can start preparing now by understanding how voting works. Check back after you turn 18 to register."
+    },
+    "ineligible_citizenship": {
+      "summary": "To vote in Indian elections, you must be an Indian citizen.",
+      "documents_needed": [],
+      "next_steps": [
+        "If you're an NRI (Non-Resident Indian), visit eci.gov.in for overseas voting options",
+        "If you're a foreign national, you cannot vote in Indian elections",
+        "If you're in the process of getting Indian citizenship, check your status with the immigration office"
+      ],
+      "caveat": "Verify your citizenship status. For overseas voting, visit eci.gov.in or call 1950."
+    },
+    "ineligible_residence": {
+      "summary": "You need to live at your current address for at least 6 months to be eligible.",
+      "documents_needed": [],
+      "next_steps": [
+        "You'll be eligible once you've completed 6 months at your current address",
+        "Check the calendar — when will that be?",
+        "After 6 months, return here to re-check your eligibility",
+        "In the meantime, you can still learn about the voting process on this app"
+      ],
+      "caveat": "You must have lived at your current address for 6 full months before you can vote from there. Verify the date and check back."
+    }
+  }
+}

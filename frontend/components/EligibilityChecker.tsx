@@ -250,7 +250,7 @@ export default function EligibilityChecker() {
                   Checking your eligibility…
                 </p>
                 <p className="text-sm mt-1" style={{ color:"var(--text-2)" }}>
-                  Gemini AI is generating your personalised explanation
+                  Analyzing your answers
                 </p>
               </div>
               <div className="w-full space-y-2.5">

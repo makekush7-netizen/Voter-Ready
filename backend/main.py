@@ -14,10 +14,10 @@ This file:
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from core.config import settings
-from api.eligibility import router as eligibility_router
-from api.journey import router as journey_router
-from api.chat import router as chat_router
+from .core.config import settings
+from .api.eligibility import router as eligibility_router
+from .api.journey import router as journey_router
+from .api.chat import router as chat_router
 
 # ── App instance ────────────────────────────────────────────────
 
