@@ -57,7 +57,7 @@ export async function chatWithAI(message: string, imageBase64?: string): Promise
   const payload: any = { message };
   if (imageBase64) payload.image_base64 = imageBase64;
   
-  const res = await fetch(`${BASE}/api/chat`, {
+  const res = await fetch(`${BASE}/api/chat/`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),

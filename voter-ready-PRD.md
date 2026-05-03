@@ -22,29 +22,28 @@ All versions below were confirmed current as of May 2026. Agents must use these 
 ### Frontend
 | Technology | Version | Notes |
 |---|---|---|
-| Next.js | 15.5.x (latest stable) | App Router. Use `npx create-next-app@latest` |
-| React | 19.x | Ships with Next.js 15.5 |
-| TypeScript | 5.x | Strict mode enabled |
-| Tailwind CSS | 3.x | For utility styling |
-| Google Maps JS API | Latest stable | Loaded via `<Script>` tag, not npm package |
+| Next.js | 15.x | App Router |
+| React | 19.x | |
+| Tailwind CSS | 4.x | For utility styling |
+| Framer Motion | 11.x | For premium animations |
+| Lucide React | Latest | For iconography |
+| Google Maps JS API | Latest stable | |
 
 ### Backend
 | Technology | Version | Notes |
 |---|---|---|
 | Python | 3.11+ | Required for FastAPI |
 | FastAPI | 0.115.x (latest) | ASGI, async-first |
-| Uvicorn | Latest | ASGI server |
-| Pydantic | v2 | Comes with FastAPI 0.115+ |
-| `anthropic` SDK | Latest (`pip install anthropic`) | For Claude API calls |
+| `google-genai` | Latest | For Gemini API calls |
 | `python-dotenv` | Latest | For `.env` management |
 | `cryptography` | Latest (Fernet) | For PII tokenization |
 
 ### AI Model
 | Use | Model String |
 |---|---|
-| All AI features | `claude-sonnet-4-20250514` |
+| All AI features | `gemini-1.5-flash` |
 
-This is the correct, confirmed model string. Do NOT use `claude-3`, `claude-opus`, or any other variant.
+Voter-Ready uses Google Gemini for all AI-driven features, including eligibility logic, personalized journey generation, and multi-modal vision chat.
 
 ### Hosting
 | Service | What it hosts |
@@ -114,22 +113,12 @@ This keeps the app predictable for the developer and avoids routing complexity.
 ## 5. Features
 
 ### Feature A — Eligibility Checker
-**Priority:** 1 (build first)  
-**AI-powered:** Yes  
+**Priority:** 1  
+**AI-powered:** Yes (Gemini 1.5 Flash)  
 **Backend endpoint:** `POST /api/eligibility/check`
 
 **What it does:**  
-A step-by-step form (one question per screen) collects basic info from the user. The FastAPI backend tokenizes PII, sends a structured prompt to Claude, and returns a plain-English eligibility verdict with a personalised action plan.
-
-**User flow:**
-1. User sees a welcome screen: "Let's check if you're ready to vote"
-2. Step 1: "How old are you?" — number input
-3. Step 2: "Are you an Indian citizen?" — Yes / No
-4. Step 3: "Which state do you live in?" — dropdown (all Indian states)
-5. Step 4: "How long have you lived at your current address?" — dropdown (< 1 month / 1–6 months / 6+ months)
-6. Step 5: "Do you already have a Voter ID card?" — Yes / No
-7. Loading state while AI processes
-8. Result card: verdict + action plan
+A step-by-step form collects user info. The backend tokenizes PII and sends it to Gemini to generate a plain-English eligibility verdict and a personalized action plan.
 
 **Form data shape:**
 ```typescript
@@ -190,25 +179,11 @@ Output schema:
 
 ### Feature B — Visual Journey
 **Priority:** 2  
-**AI-powered:** Partially (one on-demand AI call per step)  
+**AI-powered:** Yes (Gemini 1.5 Flash)  
 **Backend endpoint:** `GET /api/journey/step/{step_id}?state={state}`
 
 **What it does:**  
-A horizontal 5-step progress stepper showing the complete voter registration and voting journey. Static content provides the skeleton; Claude generates state-specific details on demand when the user expands a step.
-
-**The 5 steps (static labels, fixed):**
-1. Check your name on the Electoral Roll
-2. Register / Update your details
-3. Track your application status
-4. Find your polling booth
-5. Vote on election day
-
-**Interaction:**
-- All 5 steps visible at all times as a horizontal stepper
-- Clicking a step expands an accordion below the stepper
-- First time expanding: show loading spinner, fetch AI-generated state-specific content
-- Cache fetched content in component state (don't re-fetch on re-click)
-- User can select their state from a dropdown at the top; changing state clears cache
+A premium vertical timeline showing the 5 steps of the voter journey. Gemini generates state-specific details (links, forms, tips) on demand, which are cached in-memory to save resources.
 
 **Content structure per step (returned by API):**
 ```json
@@ -241,20 +216,8 @@ Output ONLY valid JSON matching the schema provided. No preamble.
 ### Feature C — Polling Booth Locator
 **Priority:** 3  
 **AI-powered:** No  
-**Backend:** None (pure frontend + Google Maps JS API)
-
 **What it does:**  
-An interactive map showing sample polling booths near the user's location or a searched address.
-
-**Honest scope for hackathon:**  
-ECI does not have a public real-time booth API. This feature uses hardcoded GeoJSON sample data for ~8 polling booths in Indore. The UI is indistinguishable from a real integration from a demo perspective.
-
-**User flow:**
-1. Map loads centered on Indore, MP (lat: 22.7196, lng: 75.8577)
-2. User can type an address in a search box (use Google Places Autocomplete)
-3. Map shows 8 sample booth markers
-4. Clicking a marker opens an info window: booth name, address, timings (7am–6pm), required documents at booth
-5. "Get Directions" button on each marker opens Google Maps in a new tab
+Interactive Google Map showing sample polling booths in Indore, MP. Users can search any address in India. Markers provide booth details, timings, and navigation links.
 
 **Sample booth data (hardcode in `components/BoothLocator/boothData.ts`):**
 ```typescript
@@ -278,44 +241,25 @@ Agent must add a comment in code: `// Developer: add your Google Maps API key to
 
 ---
 
-### Feature D — EVM Simulator
-**Priority:** 4 (but build second — it's pure frontend, great for momentum)  
+### Feature D — EVM Simulator (Hardware Mirror)
+**Priority:** 4  
 **AI-powered:** No  
-**Backend:** None
+**What it does:**  
+A strictly mirrored simulation of ECI hardware (Balloting Unit + Control Unit).
+- **Control Unit:** Circular buttons, dual-row LED display.
+- **Balloting Unit:** Individual blue square buttons, red LEDs, and a top-left Ready lamp.
+- **VVPAT:** Animated paper slip printing for 7 seconds post-vote.
+- **Audio:** Authentic haptic beep on selection.
+
+---
+
+### Feature E — Election AI Companion (Vision Enabled)
+**Priority:** 5  
+**AI-powered:** Yes (Gemini 1.5 Flash Multimodal)  
+**Backend endpoint:** `POST /api/chat/`
 
 **What it does:**  
-An interactive simulation of the Indian Electronic Voting Machine (EVM) and VVPAT printer. Users can practice voting before election day.
-
-**Three screens:**
-
-**Screen 1 — The EVM Panel:**
-- Header: "Practice Voting — Sample Election"
-- List of 6 sample candidates with party names (fictional — no real party names):
-  ```
-  1. Amit Sharma        — Rashtriya Vikas Dal
-  2. Priya Gupta        — Jan Seva Party
-  3. Rajesh Patel       — Bharat Kalyan Sangh
-  4. Sunita Devi        — Pragati Dal
-  5. Mohammed Khan      — Samajwadi Morcha
-  6. NOTA               — None of the Above
-  ```
-- Each candidate: numbered button on left (the actual button to press), candidate name, party name
-- Layout resembles a real EVM: dark panel, numbered buttons on left column, names on right
-- Only one button pressable at a time — selecting one greys out others
-- A blue "Cast Vote" button appears after selection
-
-**Screen 2 — VVPAT Animation:**
-- A paper slip animates sliding up from a slot at the bottom of a small rectangular VVPAT box
-- Slip shows: serial number, candidate name, party name, a small party symbol (use emoji as placeholder)
-- Slip stays visible for 7 seconds (mimicking real VVPAT)
-- Text: "Your vote has been recorded. The paper slip will disappear in {countdown} seconds."
-- After 7 seconds, slip slides back down
-
-**Screen 3 — Confirmation:**
-- Simple green success screen
-- "Vote cast successfully. In a real election, this is final."
-- "Did you know?" fact about EVM security
-- "Practice Again" button to reset to Screen 1
+A floating AI chatbot that handles text queries and **image uploads**. Users can upload screenshots of forms or voter IDs, and Gemini will analyze them to provide context-aware help.
 
 **Sound:**  
 On button press: generate a short beep using Web Audio API (no external audio file needed):

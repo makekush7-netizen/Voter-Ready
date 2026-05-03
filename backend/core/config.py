@@ -9,7 +9,7 @@ load_dotenv(dotenv_path=Path(__file__).resolve().parent.parent / ".env")
 
 class Settings:
     GEMINI_API_KEY: str = os.getenv("GEMINI_API_KEY", "")
-    GEMINI_MODEL: str = "gemini-2.5-flash"
+    GEMINI_MODEL: str = "gemini-1.5-flash"
 
     ENVIRONMENT: str = os.getenv("ENVIRONMENT", "development")
     APP_TITLE: str = "Voter-Ready API"

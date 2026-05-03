@@ -115,8 +115,13 @@ export default function BoothLocator() {
   };
 
   useEffect(() => {
+    // Ensure the callback is available on window for the Maps script
     window.initMap = buildMap;
-    if (window.google) buildMap();
+    
+    // If google is already loaded, build immediately
+    if (window.google) {
+      buildMap();
+    }
   }, []);
 
   return (
@@ -198,7 +203,10 @@ export default function BoothLocator() {
       {MAPS_KEY && (
         <Script
           src={`https://maps.googleapis.com/maps/api/js?key=${MAPS_KEY}&libraries=places&callback=initMap`}
-          strategy="afterInteractive"
+          strategy="lazyOnload"
+          onLoad={() => {
+            if (window.google) buildMap();
+          }}
         />
       )}
     </div>
